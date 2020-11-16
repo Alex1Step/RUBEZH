@@ -11,12 +11,21 @@ var RAF=
 // var tankEngine = new Audio("stuff/tankengine.mp3");
 // tankEngine.volume = 0.1;
 
-// количество циклов - для генерации случайных событий и появлений объектов
-let frameN = 0;
+// cx`nxbr - для генерации случайных событий и появлений объектов
+var frameN = 0;
+//хранение очков
+var userPoints = 0;
+//количество здоровья
+var userHealth = 6;
+//уровень игры: лёгкий / средний / тяжелый   -   выставляет начальное количество жизней у врагов
+var level = "2"  //сюда передать выбор игрока!!!
+//это для увеличения количества врагов в секунду через каждый интервал количества очков
+var startN = 120;
+var flag1 = 0;
 
 // определяем размеры окна
-var userDisplayHeight = document.body.offsetHeight;
-var userDisplayWidth = document.body.offsetWidth;
+var userDisplayHeight = document.documentElement.clientHeight;
+var userDisplayWidth = document.documentElement.clientWidth;
 var displaySettings = {
   color: "white",
   height: userDisplayHeight,
@@ -25,9 +34,10 @@ var displaySettings = {
   left: 0,
 };
 
-//инициализируем массивы для учёта врагов, выстрелов
+//инициализируем массивы для учёта врагов, выстрелов, взрывов
 var enemyArray = [];
 var shotArray = [];
+var explosion = [];
 
 // инициализация размеров объектов в зависимости от размеров пользовательского экрана
 //для удобства все объекты пока - квадратные
@@ -38,7 +48,12 @@ var shotDimension = (userDisplayHeight + userDisplayWidth)/60;
 
 
 // СОЗДАЁМ НУЖНЫЕ ОБЪЕКТЫ КЛАССОВ
-
+//это спрайт взрыва
+var expl = new Image();
+expl.src = "stuff/explosion.png";
+//это бэкграунд игры
+var backGround = new Image();
+backGround.src = "stuff/bg.png";
 // этот класс и изображение - герой
 var heroDisplay = new Image();
 heroDisplay.src = "stuff/hero.png";
@@ -73,6 +88,7 @@ function runTheGame() {
 
 //запуск игры
 function startGame() {
+    document.body.style.overflow = "hidden";
     updateGameState(); //обновление состояния
     drawGame(); //обновление отрисовки
     return RAF(startGame);
@@ -82,13 +98,35 @@ function startGame() {
 
     frameN++;
   
-    //сброс таймера
+    //сброс счётчика
     if (frameN > 1000) frameN = 0;
-
-    //создаём врагов
-    if (frameN % 100 === 0) {
+    
+    //создаём врагов 
+    if (frameN % startN === 0) {
       newEnemy.create();
     }
+    //постепенное увеличение количества появляющихся врагов в секунду в зависимости от набранных очков
+    if (userPoints ===20 && flag1===0) {
+      startN+=-30;
+      flag1 += 1;
+    }
+    if (userPoints === 50 && flag1===1) {
+      startN+=-20;
+      flag1 += 1;
+    }
+    if (userPoints === 70 && flag1===2) {
+      startN+=-30;
+      flag1 += 1;
+    }
+    if (userPoints === 85 && flag1===3) {
+      startN+=-10;
+      flag1 += 1;
+    }
+    if (userPoints === 100 && flag1===4) {
+      startN = startN - 10 + 1;
+      flag1 += 1;
+    }
+
     newShot.move();
     newEnemy.move();
     // двигаем корабль со скоротью 0, при ажатии на клавишу скорость увеличиваем
@@ -97,10 +135,11 @@ function startGame() {
 
   function drawGame() {
 
-    // ПЕРВЫМ ДЕЛОМ закрашиваем весь экран
-    ctx.fillStyle = displaySettings.color;
-    ctx.fillRect(displaySettings.top, displaySettings.left, displaySettings.width, displaySettings.height);
-    
+    // ПЕРВЫМ ДЕЛОМ закрашиваем весь экран в фон и рисуем линию фронта
+    ctx.drawImage(backGround, 0, 0, displaySettings.width, displaySettings.height, 0, 0, displaySettings.width, displaySettings.height);
+    ctx.fillStyle = "red";
+    ctx.fillRect(displaySettings.top, displaySettings.left, displaySettings.width/300, displaySettings.height);
+    explosionView();
     newShot.draw();
     newEnemy.draw();
     //отображаем героя
