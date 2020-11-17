@@ -8,11 +8,13 @@ function Controller() {
     self.moveLeft = 65;
     self.moveRight = 68;
     self.shot = 32;
+    self.stopWavePlease = 13;
+    self.waveStopperWasUsed = false;
 
     //вешаем обработчики события
     self.heroHandler = function () {
         document.addEventListener("keydown", self.heroMove, false);
-        document.addEventListener("keyup", self.heroStopMove, false);   
+        document.addEventListener("keyup", self.heroStopMove, false);  
     }
 
     //обработчик нажатия клавиш управления с клавиатуры
@@ -34,6 +36,13 @@ function Controller() {
             break;
           case self.shot:
             newShot.newShot(hero.posX, hero.posY);
+            break;
+          case self.stopWavePlease:
+            if (self.waveStopperWasUsed===false) {
+              stopTheWave = true;
+              setInterval(()=>{stopTheWave=false;}, 10000);
+              self.waveStopperWasUsed=true;
+            }
             break;
         }
     }

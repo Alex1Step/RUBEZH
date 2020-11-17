@@ -7,6 +7,7 @@ function Hero() {
     //размещаем героя
     self.posX = heroDimension/4;
     self.posY = displaySettings.height/2 - heroDimension/2;
+    self.hFR = 0;
     //скорость пока нулевая, при нажатии клавиш будет меняться
     self.speedX = 0;
     self.speedY = 0;
@@ -38,32 +39,43 @@ function Hero() {
             enemyArray[n].crash = true;
             // отслеживаем взрыв
             explosion.push({ x: enemyArray[n].coordX-enemyArray[n].size/2, y: enemyArray[n].coordY-enemyArray[n].size/2, existenceTime: 60, frN: 0 });
+            //звук взрыва
+            sndStart(explosionSnd);
+            vibro();
             //количество здоровья уменьшается
             userHealth--;
             }
           }
         //если здоровье 0 - проигрыш
-        if (userHealth===0) console.log("вы проиграли!");
+        if (userHealth===0) theEnd();
       }
 
     //метод для отрисовки героя
     self.drawHero = function () {
         // рисуем корабль
-        ctx.drawImage(heroDisplay, self.posX, self.posY, heroDimension*1.3, heroDimension);
+        ctx.drawImage(heroDisplay, self.hFR*128, 0, 128, 64, self.posX, self.posY, heroDimension*1.3, heroDimension);
+        if (frameN%15===0){
+          self.hFR+=1;
+          if (self.hFR===4) self.hFR=0;
+        }
         // рисуем информацию о количестве жизней и количестве очков
         ctx.font = "20px Verdana";
         ctx.textAlign = "left";
         ctx.fillStyle = "green";
         ctx.fillText("Счёт: " + Math.round(userPoints), 20, 50);
         ctx.fillStyle = "blue";
-        ctx.fillText("Здоровье: " + userHealth, 20, 90);
+        for (var n=0; n<=userHealth; n++) {
+          userHealthUTFstring += "\u25AE ";
+        }
+        ctx.fillText("Здоровье: " + userHealthUTFstring, 20, 90);
+        userHealthUTFstring = "";
     }
 }
 
 // ОБЪЕКТ ВРАГ
 
 function Enemy() {
-    let self = this;
+    var self = this;
     self.currentEnemy;
     var currentEnemyImg;
   
@@ -194,7 +206,7 @@ function Enemy() {
         }
         //проигрыш при пересечении врагом линии защиты
         if (enemyArray[i].coordX+enemyArray[i].size <= 0) {
-          console.log("враг зашел за границу!");
+          theEnd();
         }
       }
     }
@@ -216,6 +228,7 @@ function Bullet() {
       self.shotN.coordY = y + shotDimension;
       self.shotN.speed = self.shotspeed;
       shotArray.push(self.shotN);
+      sndStart(shotSnd);
     }
     //движение пули
     self.move = function () {
@@ -238,6 +251,8 @@ function Bullet() {
             if (enemyArray[n].health===0) {
               // отслеживаем взрыв
               explosion.push({ x: enemyArray[n].coordX-enemyArray[n].size/2, y: enemyArray[n].coordY-enemyArray[n].size/2, existenceTime: 60, frN: 0 });
+              sndStart(explosionSnd);
+              vibro();
               // ставим в объекте этого врага флаг о уничтожении
               enemyArray[n].crash = true;
               //добавляем игроку очков

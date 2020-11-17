@@ -6,17 +6,26 @@ var RAF=
         window.oRequestAnimationFrame ||
         window.msRequestAnimationFrame ||
         function(callback) { window.setTimeout(callback, 1000 / 60); };
+var startAnimation;
 
+var stopTheWave = false;
 //ЗВУКИ
-// var tankEngine = new Audio("stuff/tankengine.mp3");
-// tankEngine.volume = 0.1;
+var tankEngine = new Audio("stuff/tankengine.mp3");
+tankEngine.volume = 0.7;
+var shotSnd = new Audio("stuff/shot.mp3");
+shotSnd.volume = 1;
+var explosionSnd = new Audio("stuff/explosionSnd.mp3");
+explosionSnd.volume = 0.9;
+var backgSnd = new Audio("stuff/backgroundAudio.mp3");
+backgSnd.volume = 0.4;
 
-// cx`nxbr - для генерации случайных событий и появлений объектов
+// счётчик - для генерации случайных событий и появлений объектов
 var frameN = 0;
 //хранение очков
 var userPoints = 0;
 //количество здоровья
 var userHealth = 6;
+var userHealthUTFstring = "";
 //уровень игры: лёгкий / средний / тяжелый   -   выставляет начальное количество жизней у врагов
 var level = "2"  //сюда передать выбор игрока!!!
 //это для увеличения количества врагов в секунду через каждый интервал количества очков
@@ -78,20 +87,21 @@ var controller = new Controller();
 var canvasArea = document.querySelector(".canv");
 canvasArea.setAttribute("height", displaySettings.height);
 canvasArea.setAttribute("width", displaySettings.width);
-let ctx = canvasArea.getContext('2d');
+var ctx = canvasArea.getContext('2d');
 
 function runTheGame() {
-    // sndStart(tankEngine);
+    document.body.style.overflow = "hidden";
     controller.heroHandler();
+    sndStart(tankEngine, true);
+    sndStart(backgSnd, true);
     startGame();
 }
 
 //запуск игры
 function startGame() {
-    document.body.style.overflow = "hidden";
+    startAnimation = RAF(startGame);
     updateGameState(); //обновление состояния
     drawGame(); //обновление отрисовки
-    return RAF(startGame);
   };
 
   function updateGameState() {
@@ -102,8 +112,10 @@ function startGame() {
     if (frameN > 1000) frameN = 0;
     
     //создаём врагов 
-    if (frameN % startN === 0) {
-      newEnemy.create();
+    if (stopTheWave===false) {
+      if (frameN % startN === 0) {
+        newEnemy.create();
+      }
     }
     //постепенное увеличение количества появляющихся врагов в секунду в зависимости от набранных очков
     if (userPoints ===20 && flag1===0) {
@@ -132,7 +144,7 @@ function startGame() {
     // двигаем корабль со скоротью 0, при ажатии на клавишу скорость увеличиваем
     hero.moveHero();
   }
-
+  //отрисовка игры
   function drawGame() {
 
     // ПЕРВЫМ ДЕЛОМ закрашиваем весь экран в фон и рисуем линию фронта
@@ -145,13 +157,33 @@ function startGame() {
     //отображаем героя
     hero.drawHero();
   }
-    //запуск звуковых эффектов
-  function sndStart(audio) {
-    audio.currentTime = 0; // в секундах
-    audio.play();
+
+  function theEnd() {
+    cancelAnimationFrame(startAnimation);
+    tankEngine.pause();
+    backgSnd.pause();
   }
 
-  // случайное число
+    //запуск звуковых эффектов
+  function sndStart(audio, isloop=false) {
+    audio.currentTime = 0; // в секундах
+    if (isloop===true){
+      audio.loop = true;
+    }
+    audio.play();
+  }
+  function clickSoundInit(audio) {
+    audio.play(); // запускаем звук
+    audio.pause(); // и сразу останавливаем
+  }
+
+  function vibro() {
+    if ( navigator.vibrate ) { // есть поддержка Vibration API?
+      window.navigator.vibrate(200); // вибрация 100мс
+    }
+  }
+
+  // генератор случайных чисел
   function randomNumber(i, j) {
     return Math.floor(Math.random() * (j - i + 1)) + i;
   }
