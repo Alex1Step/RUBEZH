@@ -56,4 +56,56 @@ function Controller() {
         hero.speedY = 0;
         }
     }
+
+    self.resizeBrowser = function () {
+      //обновляем все размеры для рисовки и отслеживания в том числе и у уже существующих объектов
+      userDisplayHeight = document.body.offsetHeight;
+      userDisplayWidth = document.body.offsetWidth;
+  
+      heroDimension = (userDisplayHeight + userDisplayWidth)/2/12;
+      enemyDimension = (userDisplayHeight + userDisplayWidth)/2/12;
+      shotDimension = (userDisplayHeight + userDisplayWidth)/60;
+  
+      for (var n = 0; n < enemyArray.length; n++) {
+        enemyArray[n].size = enemyDimension;
+      }
+      for (var m = 0; m < shotArray.length; m++) {
+        shotArray[m].size = shotDimension;
+      }
+  
+      displaySettings.height = userDisplayHeight;
+      displaySettings.width = userDisplayWidth;
+      
+      //и в итоге меняем размер полотна канваса
+      canvasArea.setAttribute("height", displaySettings.height);
+      canvasArea.setAttribute("width", displaySettings.width);  
+    }
+
+    self.switchToStateFromURLHash = function (EO) {
+      var URLHash=window.location.hash;
+      var stateStr=URLHash.substr(1);
+
+      if ( stateStr!="" ) {
+        SPAState={ pagename: stateStr };
+      }
+      else
+        SPAState={pagename:'startpage'};
+
+      // обновляем часть страницы под текущее состояние
+      switch ( SPAState.pagename ) {
+        case 'startpage':
+          if (isPlay===true) {
+            if (confirm("В случае перезагрузки страницы прогресс игры будет утрачен!")) {
+              isPlay = false;
+              startPage();
+            }
+            else location.hash = 'game';
+          }
+          else startPage();
+          break;
+        case 'game':
+          runTheGame();
+          break;
+      }
+    }
 }

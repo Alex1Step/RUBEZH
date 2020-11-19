@@ -3,12 +3,63 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width" />
-    <title>BattleCommander</title>
+    <title>РУБЕЖ</title>
     <link href="style.css" rel="stylesheet" type="text/css" />
   </head>
   <body>
-    <div class-"game">
-    <canvas class="canv">Ваш браузер не поддерживает Canvas</canvas>
+    <div class="mainpage">
+      <span id="gameLabel">РУБЕЖ</span>
+      <div class="freespace"></div>
+      <div class="container1">
+        <div class="buttonsOnSP" onclick="runTheGame()">НАЧАТЬ</div>
+        <div class="buttonsOnSP" onclick="showBrief()">ИНСТРУКТАЖ</div>
+      </div>
+      <div class="freespace"></div>
+      <div class="select">
+        <select id="slct" size="3">
+          <option value="1">Новичёк</option>
+          <option value="2" selected>Солдат</option>
+          <option value="3">Коммандир</option>
+        </select>
+      </div>
+      <div class="brief">
+        <h2 id="briefH">Инструктаж</h2>
+        <p id="brieftxt">
+          Добро пожаловать на РУБЕЖ товарищ. Инструктаж будет коротким, но
+          содержательным - самое главное ты узнаешь уже в бою! В твоё
+          распоряжение поступает самая современная техника по отстрелу
+          захватчиков! Итак, основные правила ведения боя:
+        </p>
+
+        <p id="brieftxt">
+          1. Рычаги управления присоединены к клавишам W-A-S-D, выстрел на SPACE
+        </p>
+        <p id="brieftxt">
+          2. Есть приятная новость - один раз можно воспользоваться нашей
+          помощью - нажми ENTER и наши ультразвуковые пушки придержат на секунд
+          10 волну врагов
+        </p>
+
+        <p id="brieftxt">
+          3. Твоя броня рассчитана максимум на шесть столкновений
+        </p>
+        <p id="brieftxt">
+          4. Оплату ты получишь только за каждого УБИТОГО врага
+        </p>
+        <p id="brieftxt">
+          5. Самое главное - даже ценой своей жизни не дай им пройти за РУБЕЖ!!!
+          Это всё, что я хотел тебе сказать.
+        </p>
+
+        <p id="brieftxt">Не робей!</p>
+        <div class="buttonsOnSP1" onclick="hideBrief()">Понял</div>
+      </div>
+    </div>
+    <div class="game">
+      <canvas class="canv">Ваш браузер не поддерживает Canvas</canvas>
+    </div>
+    <div class="aftergame">
+      <span id="gameLabel">Игра окончена!</span>
     </div>
     <script src="controller.js"></script>
     <script src="gameObjects.js"></script>

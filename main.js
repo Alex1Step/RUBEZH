@@ -6,18 +6,19 @@ var RAF=
         window.oRequestAnimationFrame ||
         window.msRequestAnimationFrame ||
         function(callback) { window.setTimeout(callback, 1000 / 60); };
+
 var startAnimation;
 
 var stopTheWave = false;
 //ЗВУКИ
 var tankEngine = new Audio("stuff/tankengine.mp3");
-tankEngine.volume = 0.7;
+tankEngine.volume = 0.5;
 var shotSnd = new Audio("stuff/shot.mp3");
 shotSnd.volume = 1;
 var explosionSnd = new Audio("stuff/explosionSnd.mp3");
 explosionSnd.volume = 0.9;
 var backgSnd = new Audio("stuff/backgroundAudio.mp3");
-backgSnd.volume = 0.4;
+backgSnd.volume = 0.1;
 
 // счётчик - для генерации случайных событий и появлений объектов
 var frameN = 0;
@@ -27,10 +28,11 @@ var userPoints = 0;
 var userHealth = 6;
 var userHealthUTFstring = "";
 //уровень игры: лёгкий / средний / тяжелый   -   выставляет начальное количество жизней у врагов
-var level = "2"  //сюда передать выбор игрока!!!
+var level;  //сюда передать выбор игрока!!!
 //это для увеличения количества врагов в секунду через каждый интервал количества очков
 var startN = 120;
 var flag1 = 0;
+var isPlay = false;
 
 // определяем размеры окна
 var userDisplayHeight = document.documentElement.clientHeight;
@@ -82,6 +84,47 @@ var newShot = new Bullet();
 //класс для управления объектами
 var controller = new Controller();
 
+//НАЧАЛО!!! ВХОД НА САЙТ
+window.onload = enterToSite;
+
+function enterToSite() {
+  document.body.style.overflow = "hidden";
+  location.hash = "startpage";
+  var briefDiv = document.querySelector(".brief");
+  briefDiv.style.left = -1*userDisplayWidth + "px";
+}
+
+// изменения хэша
+window.onhashchange = controller.switchToStateFromURLHash;
+// текущее состояние приложения
+var SPAState={};
+
+// при перезагрузке или переходе по другому адресу пользователю будет показано предупреждение
+window.onbeforeunload = function(EO) {
+  if (isPlay===true) {
+    var dialogText = 'Прогресс будет потерян!!!';
+    EO.returnValue = dialogText;
+    return dialogText;
+  }
+};
+
+function startPage() {
+  location.hash = "startpage";
+  document.querySelector(".mainpage").style.display = "flex";
+  document.querySelector(".game").style.display = "none";
+  document.querySelector(".aftergame").style.display = "none";  
+
+  // устанавливаем начальное положение
+  frameN = 0;
+  userPoints = 0;
+  userHealth = 6;
+  userHealthUTFstring = "";
+  startN = 120;
+  flag1 = 0;
+  isPlay = false;
+  enemyArray.length = 0;
+}
+
 
 // находим canvas
 var canvasArea = document.querySelector(".canv");
@@ -90,6 +133,12 @@ canvasArea.setAttribute("width", displaySettings.width);
 var ctx = canvasArea.getContext('2d');
 
 function runTheGame() {
+    level = String (document.querySelector("#slct").value);
+    isPlay = true;
+    location.hash = "game";
+    document.querySelector(".mainpage").style.display = "none";
+    document.querySelector(".aftergame").style.display = "none";
+    document.querySelector(".game").style.display = "block";
     document.body.style.overflow = "hidden";
     controller.heroHandler();
     sndStart(tankEngine, true);
@@ -99,6 +148,7 @@ function runTheGame() {
 
 //запуск игры
 function startGame() {
+
     startAnimation = RAF(startGame);
     updateGameState(); //обновление состояния
     drawGame(); //обновление отрисовки
@@ -159,7 +209,11 @@ function startGame() {
   }
 
   function theEnd() {
+    document.querySelector(".mainpage").style.display = "none";
+    document.querySelector(".game").style.display = "none";
+    document.querySelector(".aftergame").style.display = "flex";
     cancelAnimationFrame(startAnimation);
+    isPlay = false;
     tankEngine.pause();
     backgSnd.pause();
   }
@@ -171,10 +225,6 @@ function startGame() {
       audio.loop = true;
     }
     audio.play();
-  }
-  function clickSoundInit(audio) {
-    audio.play(); // запускаем звук
-    audio.pause(); // и сразу останавливаем
   }
 
   function vibro() {
@@ -188,4 +238,17 @@ function startGame() {
     return Math.floor(Math.random() * (j - i + 1)) + i;
   }
 
-  runTheGame();
+  function showBrief() {
+    var briefDiv = document.querySelector(".brief");
+    briefDiv.style.visibility = "visible";
+    document.querySelector(".brief").style.left = "50%";
+    document.querySelector(".brief").style.transform = "translateZ(0) translateX(-50%)";
+  }
+  function hideBrief() {
+    var briefDiv = document.querySelector(".brief");
+    briefDiv.style.left = -1*userDisplayWidth + "px";
+    briefDiv.style.visibility = "hidden";
+  }
+
+  // отслеживаем размеры браузера
+  window.addEventListener("resize", controller.resizeBrowser, false);

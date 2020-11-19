@@ -11,7 +11,6 @@ function Hero() {
     //скорость пока нулевая, при нажатии клавиш будет меняться
     self.speedX = 0;
     self.speedY = 0;
-    // self.bang = 3;
 
     //метод для передвижения героя ТУТ ВСЁ КАК С МЯЧИКОМ В ТЕННИСЕ =)
     self.moveHero = function () {
@@ -59,15 +58,16 @@ function Hero() {
           if (self.hFR===4) self.hFR=0;
         }
         // рисуем информацию о количестве жизней и количестве очков
-        ctx.font = "20px Verdana";
+        ctx.font = heroDimension/4 + "px Verdana";
         ctx.textAlign = "left";
         ctx.fillStyle = "green";
-        ctx.fillText("Счёт: " + Math.round(userPoints), 20, 50);
+        ctx.fillText("Счёт: " + Math.round(userPoints), heroDimension/5, heroDimension/4);
         ctx.fillStyle = "blue";
         for (var n=0; n<=userHealth; n++) {
           userHealthUTFstring += "\u25AE ";
+          
         }
-        ctx.fillText("Здоровье: " + userHealthUTFstring, 20, 90);
+        ctx.fillText("Здоровье: " + userHealthUTFstring, heroDimension/5, heroDimension/2);
         userHealthUTFstring = "";
     }
 }
