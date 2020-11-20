@@ -118,10 +118,12 @@ window.onhashchange = controller.switchToStateFromURLHash;
 var SPAState={};
 
 // при перезагрузке или переходе по другому адресу пользователю будет показано предупреждение
-window.onbeforeunload = function(EO) {
+window.addEventListener("beforeunload", befUnload, false);
+function befUnload(EO) {
+  EO=EO||window.event;
+  EO.preventDefault();
   if (isPlay===true) {
-    var dialogText = 'Прогресс будет потерян!!!';
-    EO.returnValue = dialogText;
+    EO.returnValue = 'Прогресс будет потерян!!!';
   }
 };
 //ХЭШ начальной страницы
@@ -142,6 +144,7 @@ function startPage() {
     document.querySelector(".game").removeEventListener("touchstart", self.shotT, false);
     document.querySelector(".game").removeEventListener("touchmove", self.moveT, false);
     document.querySelector(".game").removeEventListener("touchend", self.clearT, false);
+    $('.game').unbind("swipeRight");
   }
   tankEngine.pause();
   backgSnd.pause();
@@ -267,6 +270,7 @@ function startGame() {
     document.querySelector(".game").removeEventListener("touchstart", self.shotT, false);
     document.querySelector(".game").removeEventListener("touchmove", self.moveT, false);
     document.querySelector(".game").removeEventListener("touchend", self.clearT, false);
+    $('.game').unbind("swipeRight");
   }
 
   //функция для запуска звуковых эффектов

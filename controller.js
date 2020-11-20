@@ -18,8 +18,16 @@ function Controller() {
         document.addEventListener("keydown", self.heroMove, false);
         document.addEventListener("keyup", self.heroStopMove, false);
         document.querySelector(".game").addEventListener("touchstart", self.shotT, false);
-        // document.querySelector(".game").addEventListener("touchmove", self.moveT, false);
+        document.querySelector(".game").addEventListener("touchmove", self.moveT, false);
         document.querySelector(".game").addEventListener("touchend", self.clearT, false);
+        // ЖЕСТ обрабатывается при помощи библиотеки Zepto
+        $('.game').bind("swipeRight", function () {
+          if (self.waveStopperWasUsed===false) {
+            stopTheWave = true;
+            setInterval(()=>{stopTheWave=false;}, 10000);
+            self.waveStopperWasUsed=true;
+          }
+        })
     }
 
     //обработчик нажатия клавиш управления с клавиатуры
@@ -70,16 +78,6 @@ function Controller() {
       EO.preventDefault();
       self.timeSTAMPshot = EO.timeStamp;
       newShot.newShot(hero.posX, hero.posY);
-      //условие: перетаскивать героя можно только взяв именно занего
-      if (self.draggy===false){
-        if ((EO.targetTouches[0].pageX>hero.posX) && 
-          (EO.targetTouches[0].pageX<(hero.posX+heroDimension)) &&
-          (EO.targetTouches[0].pageY>hero.posY) && 
-          (EO.targetTouches[0].pageY<(hero.posY+heroDimension))) {
-          self.draggy = true;
-          document.querySelector(".game").addEventListener("touchmove", self.moveT, false);
-        }
-      }
     }
     //перетаскивание героя
     self.moveT = function (EO) {
@@ -92,11 +90,6 @@ function Controller() {
     self.clearT = function (EO) {
       EO = EO || window.event;
       EO.preventDefault();
-      if ((EO.timeStamp-self.timeSTAMPshot)>1000) {
-        document.querySelector(".game").removeEventListener("touchmove", self.moveT, false);
-        self.draggy=false;
-        console.log("обработчик move снят");
-      }
     }
     //изменение размера браузера
     self.resizeBrowser = function () {
