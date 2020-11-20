@@ -2,7 +2,7 @@
 
 function Controller() {
     var self = this;
-    self.speedH = 4;
+    self.speedH = 3;
     self.moveUp = 87;
     self.moveDown = 83;
     self.moveLeft = 65;
@@ -20,7 +20,7 @@ function Controller() {
     //обработчик нажатия клавиш управления с клавиатуры
     self.heroMove = function (EO) {
         var EO = EO || window.event;
-        EO.preventDefault();
+        // EO.preventDefault();
         switch (EO.keyCode) {
           case self.moveUp:
             hero.speedY = -self.speedH;

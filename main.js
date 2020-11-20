@@ -29,10 +29,15 @@ var userHealth = 6;
 var userHealthUTFstring = "";
 //уровень игры: лёгкий / средний / тяжелый   -   выставляет начальное количество жизней у врагов
 var level;  //сюда передать выбор игрока!!!
+var levelstr;
 //это для увеличения количества врагов в секунду через каждый интервал количества очков
 var startN = 120;
 var flag1 = 0;
 var isPlay = false;
+//для AJAX
+// var strForAjax = {};
+var tempNick;
+var newScoresTable;
 
 // определяем размеры окна
 var userDisplayHeight = document.documentElement.clientHeight;
@@ -92,6 +97,8 @@ function enterToSite() {
   location.hash = "startpage";
   var briefDiv = document.querySelector(".brief");
   briefDiv.style.left = -1*userDisplayWidth + "px";
+  var tableDiv = document.querySelector(".tableDiv");
+  tableDiv.style.left = -1*userDisplayWidth + "px";
 }
 
 // изменения хэша
@@ -113,7 +120,14 @@ function startPage() {
   document.querySelector(".mainpage").style.display = "flex";
   document.querySelector(".game").style.display = "none";
   document.querySelector(".aftergame").style.display = "none";  
-
+  //здесь останавливаем всё для корректной работы после нажатия "назад" в самой игре
+  if (startAnimation) {
+    cancelAnimationFrame(startAnimation);
+    document.removeEventListener("keydown", self.heroMove, false);
+    document.removeEventListener("keyup", self.heroStopMove, false);
+  }
+  tankEngine.pause();
+  backgSnd.pause();
   // устанавливаем начальное положение
   frameN = 0;
   userPoints = 0;
@@ -123,8 +137,11 @@ function startPage() {
   flag1 = 0;
   isPlay = false;
   enemyArray.length = 0;
+  shotArray.length = 0;
+  explosion.length = 0;
+  hero.posX = heroDimension/4;
+  hero.posY = displaySettings.height/2 - heroDimension/2;
 }
-
 
 // находим canvas
 var canvasArea = document.querySelector(".canv");
@@ -134,6 +151,18 @@ var ctx = canvasArea.getContext('2d');
 
 function runTheGame() {
     level = String (document.querySelector("#slct").value);
+    switch (level) {
+      case "1":
+        levelstr = "Новичёк";
+        break;
+      case "2":
+        levelstr = "Солдат";
+        break;
+      case "3":
+        levelstr = "Коммандир";
+        break;
+
+    }
     isPlay = true;
     location.hash = "game";
     document.querySelector(".mainpage").style.display = "none";
@@ -148,16 +177,13 @@ function runTheGame() {
 
 //запуск игры
 function startGame() {
-
     startAnimation = RAF(startGame);
     updateGameState(); //обновление состояния
     drawGame(); //обновление отрисовки
   };
 
   function updateGameState() {
-
     frameN++;
-  
     //сброс счётчика
     if (frameN > 1000) frameN = 0;
     
@@ -188,7 +214,6 @@ function startGame() {
       startN = startN - 10 + 1;
       flag1 += 1;
     }
-
     newShot.move();
     newEnemy.move();
     // двигаем корабль со скоротью 0, при ажатии на клавишу скорость увеличиваем
@@ -209,6 +234,7 @@ function startGame() {
   }
 
   function theEnd() {
+    document.querySelector("#userScores").innerHTML = `Количество очков: ${userPoints}`;
     document.querySelector(".mainpage").style.display = "none";
     document.querySelector(".game").style.display = "none";
     document.querySelector(".aftergame").style.display = "flex";
@@ -216,6 +242,9 @@ function startGame() {
     isPlay = false;
     tankEngine.pause();
     backgSnd.pause();
+    //на всякий случай снимаем за собой обработчики событий самой игры
+    document.removeEventListener("keydown", self.heroMove, false);
+    document.removeEventListener("keyup", self.heroStopMove, false); 
   }
 
     //запуск звуковых эффектов
@@ -250,5 +279,105 @@ function startGame() {
     briefDiv.style.visibility = "hidden";
   }
 
+  function showTableDiv() {
+    restoreInfo();
+  }
+  function hideTableDiv() {
+    var tableDiv = document.querySelector(".tableDiv");
+    tableDiv.style.left = -1*userDisplayWidth + "px";
+    tableDiv.style.visibility = "hidden";
+  }
   // отслеживаем размеры браузера
   window.addEventListener("resize", controller.resizeBrowser, false);
+
+  function saveAJAX() {
+    tempNick = document.querySelector("#nickName").value;
+    storeInfo();
+    document.querySelector("#userScores").style.display = "none";
+    document.querySelector("#nickName").style.display = "none";
+    document.querySelector("#nickNameBtn").style.display = "none";
+  }
+  
+  //запись и чтение результата с помощью AJAX на/с сервера //переделать из домашней работы
+
+  var ajaxHandlerScript="https://fe.it-academy.by/AjaxStringStorage2.php";
+  var updatePassword;
+  var stringName='STEPANCHUK_RUBEZH_USERSCORES';
+
+    function storeInfo(){
+        updatePassword=Math.random();
+        $.ajax( {
+                url : ajaxHandlerScript, type : 'POST', cache : false, dataType:'json',
+                data : { f : 'LOCKGET', n : stringName, p : updatePassword },
+                success : lockGetReady, error : errorHandler
+            }
+        );
+    }
+
+    function lockGetReady(callresult) {
+        if ( callresult.error!=undefined ){
+            alert(callresult.error);
+        }
+        else {
+            newScoresTable = JSON.parse(callresult.result);
+            newScoresTable[tempNick] = [userPoints, levelstr];
+            $.ajax( {
+                    url : ajaxHandlerScript, type : 'POST', cache : false, dataType:'json',
+                    data : { f : 'UPDATE', n : stringName, v : JSON.stringify(newScoresTable), p : updatePassword },
+                    success : updateReady, error : errorHandler
+                }
+            );
+        }
+    }
+
+    function updateReady(callresult) {
+        if ( callresult.error!=undefined )
+            alert(callresult.error);
+    }
+
+    function restoreInfo() {
+      $.ajax(
+          {
+              url : ajaxHandlerScript, type : 'POST', cache : false, dataType:'json',
+              data : { f : 'READ', n : stringName },
+              success : readReady, error : errorHandler
+          }
+      );
+  }
+
+  function readReady(callresult) {
+      if ( callresult.error!=undefined )
+          alert(callresult.error);
+      else if ( callresult.result!="" ) {
+          var info=JSON.parse(callresult.result);
+          var arrayForSort = [];
+          var i = 0;
+          for (var key in info) {
+            arrayForSort[i] = [key, info[key][0], info[key][1]];
+            i++;
+          }
+          arrayForSort.sort(function(a, b) {return a[1] - b[1];});
+          createscoreTable(document.querySelector("#scoresArea"), arrayForSort);
+          var tableDiv = document.querySelector(".tableDiv");
+          tableDiv.style.visibility = "visible";
+          document.querySelector(".tableDiv").style.left = "50%";
+          document.querySelector(".tableDiv").style.transform = "translateZ(0) translateX(-50%)";
+      }
+  }
+
+    function errorHandler(jqXHR,statusStr,errorStr) {
+        alert(statusStr+' '+errorStr);
+    }
+
+    function createscoreTable(field,arr){
+      var pageHTML = ''; 
+      pageHTML += '<table border=1><tbody>'; 
+      pageHTML += '<td>' + 'Место' + '</td>' + '<td>' + 'Nickname' + '</td>' + '<td>' + 'Очки' + '</td>' + '<td>' + 'Уровень' + '</td>'; 
+      for(var i = 0; i < 12; i++){ 
+        pageHTML += '<tr>'; 
+        pageHTML += '<td>' + (i+1) + '</td>' + '<td>' + arr[(arr.length-1)-i][0] + '</td>' + '<td>' + arr[(arr.length-1)-i][1] + '</td>' + '<td>' + arr[(arr.length-1)-i][2] + '</td>'; 
+        pageHTML += '</tr>'; 
+      } 
+      pageHTML += '</tbody></table>'; 
+      field.innerHTML = pageHTML; 
+    } 

@@ -4,6 +4,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width" />
     <title>РУБЕЖ</title>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.2.0/jquery.min.js"></script>
     <link href="style.css" rel="stylesheet" type="text/css" />
   </head>
   <body>
@@ -51,7 +52,7 @@
           Это всё, что я хотел тебе сказать.
         </p>
 
-        <p id="brieftxt">Не робей!</p>
+        <p id="brieftxt">Не робей! Я верю - ты попадёшь в Зал славы "13"!</p>
         <div class="buttonsOnSP1" onclick="hideBrief()">Понял</div>
       </div>
     </div>
@@ -60,6 +61,24 @@
     </div>
     <div class="aftergame">
       <span id="gameLabel">Игра окончена!</span>
+      <h1 id="userScores"></h1>
+      <input id="nickName" type="text" name="text" />
+      <div class="container2">
+        <div class="buttonsOnSP" id="nickNameBtn" onclick="saveAJAX()">
+          Сохранить результат
+        </div>
+        <div class="buttonsOnSP" id="playAgain" onclick="startPage()">
+          Играть снова
+        </div>
+        <div class="buttonsOnSP" id="scoresTable" onclick="showTableDiv()">
+          Зал славы "Тринадцати"
+        </div>
+      </div>
+      <div class="tableDiv">
+        <h2 id="tableTitle">Зал славы "Тринадцати"</h2>
+        <div id="scoresArea"></div>
+        <div class="buttonsOnSP1" onclick="hideTableDiv()">OK</div>
+      </div>
     </div>
     <script src="controller.js"></script>
     <script src="gameObjects.js"></script>
