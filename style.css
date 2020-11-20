@@ -210,7 +210,7 @@ select {
   flex-direction: column;
   justify-content: center;
   transform: translateZ(0);
-  transition-duration: 3s;
+  transition-duration: 2s;
   transition-timing-function: linear;
 }
 
@@ -265,7 +265,7 @@ select {
   /* flex-direction: column; */
   justify-content: center;
   transform: translateZ(0);
-  transition-duration: 3s;
+  transition-duration: 2s;
   transition-timing-function: linear;
 }
 

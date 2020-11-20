@@ -14,7 +14,9 @@ function Controller() {
     //вешаем обработчики события
     self.heroHandler = function () {
         document.addEventListener("keydown", self.heroMove, false);
-        document.addEventListener("keyup", self.heroStopMove, false);  
+        document.addEventListener("keyup", self.heroStopMove, false);
+        document.querySelector(".game").addEventListener("touchstart", self.shotT, false);
+        document.querySelector(".game").addEventListener("touchend", self.clearT, false);
     }
 
     //обработчик нажатия клавиш управления с клавиатуры
@@ -57,6 +59,31 @@ function Controller() {
         }
     }
 
+    self.shotT = function (EO) {
+      EO = EO || window.event;
+      EO.preventDefault();
+      newShot.newShot(hero.posX, hero.posY);
+      if ((EO.targetTouches[0].pageX>hero.posX) && 
+        (EO.targetTouches[0].pageX<(hero.posX+heroDimension)) &&
+        (EO.targetTouches[0].pageY>hero.posY) && 
+        (EO.targetTouches[0].pageY<(hero.posY+heroDimension))) {
+        document.querySelector(".game").addEventListener("touchmove", self.moveT, false);
+      }
+    }
+    
+    self.moveT = function (EO) {
+      EO = EO || window.event;
+      EO.preventDefault();
+      hero.posX = EO.targetTouches[0].pageX-heroDimension/2;
+      hero.posY = EO.targetTouches[0].pageY-heroDimension/2;
+    }
+
+    self.clearT = function (EO) {
+      EO = EO || window.event;
+      EO.preventDefault();
+      document.querySelector(".game").removeEventListener("touchmove", self.moveT, false);
+    }
+    
     self.resizeBrowser = function () {
       //обновляем все размеры для рисовки и отслеживания в том числе и у уже существующих объектов
       userDisplayHeight = document.body.offsetHeight;
