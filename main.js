@@ -7,6 +7,10 @@ var RAF=
         window.msRequestAnimationFrame ||
         function(callback) { window.setTimeout(callback, 1000 / 60); };
 
+//определяем с мобильного ли вошёл пользователь
+// var userUse = window.navigator.userAgent;
+var userUse = /Mobile|webOS|BlackBerry|IEMobile|MeeGo|mini|Fennec|Windows Phone|Android|iP(ad|od|hone)/i.test(navigator.userAgent);
+
 var startAnimation;
 //переменная для определения была ли использована "помощь"
 var stopTheWave = false;
@@ -88,6 +92,14 @@ var newShot = new Bullet();
 //класс для управления объектами
 var controller = new Controller();
 
+//если пользователь с мобильного - нужно внести следующие медиазапросы
+if (userUse===true) {
+  console.log("from mobile");
+  document.querySelector('style').textContent +=
+"@media screen and (min-width: 480px) and (max-width: 800px) {.brief {display: block;height: 53vw;}#brieftxt {font-size: 4vh;margin-block-start: 0%;margin-block-end: 0%;margin: 0px;}#briefH {font-size: 4vh;margin-block-start: 0%;margin-block-end: 0%;margin: 0px;}.tableDiv {display: block;height: 53vw;}#tableTitle {display: none;}}"
+}
+
+
 //НАЧАЛО!!! ВХОД НА САЙТ
 window.onload = enterToSite;
 
@@ -127,6 +139,9 @@ function startPage() {
     cancelAnimationFrame(startAnimation);
     document.removeEventListener("keydown", self.heroMove, false);
     document.removeEventListener("keyup", self.heroStopMove, false);
+    document.querySelector(".game").removeEventListener("touchstart", self.shotT, false);
+    document.querySelector(".game").removeEventListener("touchmove", self.moveT, false);
+    document.querySelector(".game").removeEventListener("touchend", self.clearT, false);
   }
   tankEngine.pause();
   backgSnd.pause();
@@ -250,6 +265,7 @@ function startGame() {
     document.removeEventListener("keydown", self.heroMove, false);
     document.removeEventListener("keyup", self.heroStopMove, false); 
     document.querySelector(".game").removeEventListener("touchstart", self.shotT, false);
+    document.querySelector(".game").removeEventListener("touchmove", self.moveT, false);
     document.querySelector(".game").removeEventListener("touchend", self.clearT, false);
   }
 

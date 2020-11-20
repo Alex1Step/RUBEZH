@@ -12,11 +12,13 @@ function Controller() {
     self.waveStopperWasUsed = false;
 
     self.draggy = false;
+    self.timeSTAMPshot;
     //вешаем обработчики события
     self.heroHandler = function () {
         document.addEventListener("keydown", self.heroMove, false);
         document.addEventListener("keyup", self.heroStopMove, false);
         document.querySelector(".game").addEventListener("touchstart", self.shotT, false);
+        // document.querySelector(".game").addEventListener("touchmove", self.moveT, false);
         document.querySelector(".game").addEventListener("touchend", self.clearT, false);
     }
 
@@ -66,6 +68,7 @@ function Controller() {
     self.shotT = function (EO) {
       EO = EO || window.event;
       EO.preventDefault();
+      self.timeSTAMPshot = EO.timeStamp;
       newShot.newShot(hero.posX, hero.posY);
       //условие: перетаскивать героя можно только взяв именно занего
       if (self.draggy===false){
@@ -89,8 +92,11 @@ function Controller() {
     self.clearT = function (EO) {
       EO = EO || window.event;
       EO.preventDefault();
-      self.draggy=false;
-      document.querySelector(".game").removeEventListener("touchmove", self.moveT, false);
+      if ((EO.timeStamp-self.timeSTAMPshot)>1000) {
+        document.querySelector(".game").removeEventListener("touchmove", self.moveT, false);
+        self.draggy=false;
+        console.log("обработчик move снят");
+      }
     }
     //изменение размера браузера
     self.resizeBrowser = function () {
