@@ -330,7 +330,6 @@ function startGame() {
   var stringName='STEPANCHUK_RUBEZH_USERSCORES';
 
     function storeInfo(){
-      console.log(document.querySelector("#nickName").value);
       if (document.querySelector("#nickName").value!="") {
         document.querySelector("#userScores").style.display = "none";
         document.querySelector("#nickName").style.display = "none";
