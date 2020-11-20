@@ -15,10 +15,8 @@ function Controller() {
     self.heroHandler = function () {
         document.addEventListener("keydown", self.heroMove, false);
         document.addEventListener("keyup", self.heroStopMove, false);
-        // document.querySelector(".game").addEventListener("touchstart", self.shotT, false);
-        // document.querySelector(".game").addEventListener("touchend", self.clearT, false);
-        document.addEventListener("touchstart", self.shotT, false);
-        document.addEventListener("touchend", self.clearT, false);
+        document.querySelector(".game").addEventListener("touchstart", self.shotT, false);
+        document.querySelector(".game").addEventListener("touchend", self.clearT, false);
     }
 
     //обработчик нажатия клавиш управления с клавиатуры
@@ -69,8 +67,7 @@ function Controller() {
         (EO.targetTouches[0].pageX<(hero.posX+heroDimension)) &&
         (EO.targetTouches[0].pageY>hero.posY) && 
         (EO.targetTouches[0].pageY<(hero.posY+heroDimension))) {
-        // document.querySelector(".game").addEventListener("touchmove", self.moveT, false);
-        document.addEventListener("touchmove", self.moveT, false);
+        document.querySelector(".game").addEventListener("touchmove", self.moveT, false);
       }
     }
     
