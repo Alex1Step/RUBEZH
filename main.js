@@ -8,7 +8,7 @@ var RAF=
         function(callback) { window.setTimeout(callback, 1000 / 60); };
 
 var startAnimation;
-
+//переменная для определения была ли использована "помощь"
 var stopTheWave = false;
 //ЗВУКИ
 var tankEngine = new Audio("stuff/tankengine.mp3");
@@ -18,7 +18,7 @@ shotSnd.volume = 1;
 var explosionSnd = new Audio("stuff/explosionSnd.mp3");
 explosionSnd.volume = 0.9;
 var backgSnd = new Audio("stuff/backgroundAudio.mp3");
-backgSnd.volume = 0.1;
+backgSnd.volume = 0.4;
 
 // счётчик - для генерации случайных событий и появлений объектов
 var frameN = 0;
@@ -33,9 +33,9 @@ var levelstr;
 //это для увеличения количества врагов в секунду через каждый интервал количества очков
 var startN = 120;
 var flag1 = 0;
+//в игре ли мы?
 var isPlay = false;
 //для AJAX
-// var strForAjax = {};
 var tempNick;
 var newScoresTable;
 
@@ -56,7 +56,6 @@ var shotArray = [];
 var explosion = [];
 
 // инициализация размеров объектов в зависимости от размеров пользовательского экрана
-//для удобства все объекты пока - квадратные
 
 var heroDimension = (userDisplayHeight + userDisplayWidth)/2/12;
 var enemyDimension = (userDisplayHeight + userDisplayWidth)/2/12;
@@ -101,7 +100,7 @@ function enterToSite() {
   tableDiv.style.left = -1*userDisplayWidth + "px";
 }
 
-// изменения хэша
+// событие изменения хэша
 window.onhashchange = controller.switchToStateFromURLHash;
 // текущее состояние приложения
 var SPAState={};
@@ -111,10 +110,9 @@ window.onbeforeunload = function(EO) {
   if (isPlay===true) {
     var dialogText = 'Прогресс будет потерян!!!';
     EO.returnValue = dialogText;
-    return dialogText;
   }
 };
-
+//ХЭШ начальной страницы
 function startPage() {
   location.hash = "startpage";
   document.querySelector(".mainpage").style.display = "flex";
@@ -152,8 +150,9 @@ var canvasArea = document.querySelector(".canv");
 canvasArea.setAttribute("height", displaySettings.height);
 canvasArea.setAttribute("width", displaySettings.width);
 var ctx = canvasArea.getContext('2d');
-
+//запускаем саму игру
 function runTheGame() {
+  //определяем уровень сложности
     level = String (document.querySelector("#slct").value);
     switch (level) {
       case "1":
@@ -167,6 +166,7 @@ function runTheGame() {
         break;
 
     }
+    //игра началась
     isPlay = true;
     location.hash = "game";
     document.querySelector(".mainpage").style.display = "none";
@@ -226,7 +226,7 @@ function startGame() {
   //отрисовка игры
   function drawGame() {
 
-    // ПЕРВЫМ ДЕЛОМ закрашиваем весь экран в фон и рисуем линию фронта
+    // ПЕРВЫМ ДЕЛОМ закрашиваем весь экран в фон и рисуем линию "фронта"
     ctx.drawImage(backGround, 0, 0, displaySettings.width, displaySettings.height, 0, 0, displaySettings.width, displaySettings.height);
     ctx.fillStyle = "red";
     ctx.fillRect(displaySettings.top, displaySettings.left, displaySettings.width/300, displaySettings.height);
@@ -236,7 +236,7 @@ function startGame() {
     //отображаем героя
     hero.drawHero();
   }
-
+  //конец игры
   function theEnd() {
     document.querySelector("#userScores").innerHTML = `Количество очков: ${userPoints}`;
     document.querySelector(".mainpage").style.display = "none";
@@ -249,9 +249,11 @@ function startGame() {
     //на всякий случай снимаем за собой обработчики событий самой игры
     document.removeEventListener("keydown", self.heroMove, false);
     document.removeEventListener("keyup", self.heroStopMove, false); 
+    document.querySelector(".game").removeEventListener("touchstart", self.shotT, false);
+    document.querySelector(".game").removeEventListener("touchend", self.clearT, false);
   }
 
-    //запуск звуковых эффектов
+  //функция для запуска звуковых эффектов
   function sndStart(audio, isloop=false) {
     audio.currentTime = 0; // в секундах
     if (isloop===true){
@@ -259,7 +261,7 @@ function startGame() {
     }
     audio.play();
   }
-
+  //вибрация на мобильном
   function vibro() {
     if ( navigator.vibrate ) { // есть поддержка Vibration API?
       window.navigator.vibrate(200); // вибрация 100мс
@@ -270,22 +272,24 @@ function startGame() {
   function randomNumber(i, j) {
     return Math.floor(Math.random() * (j - i + 1)) + i;
   }
-
+  //показать инструктаж
   function showBrief() {
     var briefDiv = document.querySelector(".brief");
     briefDiv.style.visibility = "visible";
     document.querySelector(".brief").style.left = "50%";
     document.querySelector(".brief").style.transform = "translateZ(0) translateX(-50%)";
   }
+  //скрыть инструктаж
   function hideBrief() {
     var briefDiv = document.querySelector(".brief");
     briefDiv.style.left = -1*userDisplayWidth + "px";
     briefDiv.style.visibility = "hidden";
   }
-
+  //показать таблицу рекордов
   function showTableDiv() {
     restoreInfo();
   }
+  //скрыть таблицу рекордов
   function hideTableDiv() {
     var tableDiv = document.querySelector(".tableDiv");
     tableDiv.style.left = -1*userDisplayWidth + "px";
@@ -294,13 +298,13 @@ function startGame() {
   // отслеживаем размеры браузера
   window.addEventListener("resize", controller.resizeBrowser, false);
 
+  //сохранение результата при помощи ajax
   function saveAJAX() {
     tempNick = document.querySelector("#nickName").value;
     storeInfo();
   }
   
   //запись и чтение результата с помощью AJAX на/с сервера //переделать из домашней работы
-
   var ajaxHandlerScript="https://fe.it-academy.by/AjaxStringStorage2.php";
   var updatePassword;
   var stringName='STEPANCHUK_RUBEZH_USERSCORES';
@@ -379,7 +383,7 @@ function startGame() {
     function errorHandler(jqXHR,statusStr,errorStr) {
         alert(statusStr+' '+errorStr);
     }
-
+    //программное создание таблицы рекордов после чтения с сервера таблицы результатов
     function createscoreTable(field,arr){
       var pageHTML = ''; 
       pageHTML += '<table border=1><tbody>'; 
