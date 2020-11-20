@@ -120,6 +120,10 @@ function startPage() {
   document.querySelector(".mainpage").style.display = "flex";
   document.querySelector(".game").style.display = "none";
   document.querySelector(".aftergame").style.display = "none";  
+  document.querySelector("#userScores").style.display = "block";
+  document.querySelector("#nickName").style.display = "block";
+  document.querySelector("#nickName").value = "";
+  document.querySelector("#nickNameBtn").style.display = "block";
   //здесь останавливаем всё для корректной работы после нажатия "назад" в самой игре
   if (startAnimation) {
     cancelAnimationFrame(startAnimation);
@@ -293,9 +297,6 @@ function startGame() {
   function saveAJAX() {
     tempNick = document.querySelector("#nickName").value;
     storeInfo();
-    document.querySelector("#userScores").style.display = "none";
-    document.querySelector("#nickName").style.display = "none";
-    document.querySelector("#nickNameBtn").style.display = "none";
   }
   
   //запись и чтение результата с помощью AJAX на/с сервера //переделать из домашней работы
@@ -305,6 +306,11 @@ function startGame() {
   var stringName='STEPANCHUK_RUBEZH_USERSCORES';
 
     function storeInfo(){
+      console.log(document.querySelector("#nickName").value);
+      if (document.querySelector("#nickName").value!="") {
+        document.querySelector("#userScores").style.display = "none";
+        document.querySelector("#nickName").style.display = "none";
+        document.querySelector("#nickNameBtn").style.display = "none";
         updatePassword=Math.random();
         $.ajax( {
                 url : ajaxHandlerScript, type : 'POST', cache : false, dataType:'json',
@@ -312,6 +318,11 @@ function startGame() {
                 success : lockGetReady, error : errorHandler
             }
         );
+      }
+      else {
+        document.querySelector("#nickName").style.border="2px solid red";
+        document.querySelector("#nickName").focus();
+      }
     }
 
     function lockGetReady(callresult) {
